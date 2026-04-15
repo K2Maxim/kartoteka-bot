@@ -1,0 +1,46 @@
+.message {
+	color: white;
+	font-size: clamp(1rem, 7vw, 4rem);
+	text-align: center;
+	word-wrap: break-word;
+	max-width: 70%;
+	width: 70%;
+	margin-bottom: clamp(5px, 2vw, 25px);
+}
+
+.message.error {
+	color: hotpink;
+}
+
+.input {
+	background-color: white;
+	border: none;
+	color: darkblue;
+	font-size: clamp(1rem, 7vw, 4rem);
+	height: 10vh;
+	outline: none;
+	padding: 15px;
+	resize: none;
+	width: 90%;
+}
+
+.input:focus {
+	outline: 3px solid yellow;
+}
+
+.submit {
+	background-color: lime;
+	border-radius: 25px;
+	border: none;
+	color: blue;
+	cursor: pointer;
+	font-size: clamp(1rem, 5vw, 3rem);
+	font-weight: bold;
+	margin-top: clamp(7px, 4vw, 30px);
+	padding: 15px 30px;
+	width: 40%;
+}
+
+.submit:hover {
+	opacity: 0.9;
+}

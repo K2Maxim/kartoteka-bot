@@ -1,0 +1,20 @@
+* {
+	box-sizing: border-box;
+	margin: 0;
+	padding: 0;
+}
+
+body {
+	align-items: center;
+	background-color: darkblue;
+	display: flex;
+	font-family: Arial, sans-serif;
+	min-height: 100vh;
+}
+
+.container {
+	align-items: center;
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+}
