@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+	<meta charset="UTF-8">
+	<meta
+		name="viewport"
+		content="width=device-width, initial-scale=1.0">
+	<title>История конструктора ботов</title>
+	<link rel="icon" href="data:image/x-icon;base64,AAABAAEAAQEQAAAAAAB8AAAAFgAAACgAAAABAAAAAgAAAAEABAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAACAAAAAgIAAgAAAAIAAgACAgAAAgICAAMDAwAAAAP8AAP8AAAD//wD/AAAA/wD/AP//AAD///8AgAAAAAAAAAAAAAAAAAAAAAAAAAA=">
+</head>
+<body>
+	<h1>История работы над конструктором ботов</h1>
+
+	<h2>Ubuntu</h2>
+	<p>На странице https://ubuntu.com/download/desktop взята версия Ubuntu 24.04.4 LTS.</p>
+	<p>В Virtualbox создана виртуальная машина с именем Ubuntu 24 и характеристиками:</p>
+	<ul>
+		<li>8 Гб оперативы;</li>
+		<li>
+			25 Гб жесткий диск - в дальнейшем пожалел, нужно<br>
+			больше места, так как Rust чересчур много<br>
+			зависимостей тащит в каждый проект, по 2-3 Гб;
+		</li>
+		<li>2 процессора.</li>
+	</ul>
+	<p>К виртуальной машине подключен образ Ubuntu 24.04.4 LTS.</p>
+	
+	<h2>Rust</h2>
+	<p>Установлен Rustup:</p>
+	<pre><code>curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh</code></pre>
+	<p>Установлена цепочка инструментов Rust:</p>
+	<pre><code>rustup toolchain install stable</code></pre>
+	<p>Выполнена проверка установки инструментов:</p>
+	<pre><code>cargo --version</code></pre>
+	<pre><code>cargo 1.92.0</code></pre>
+	<pre><code>rustc --version</code></pre>
+	<pre><code>rustc 1.92.0</code></pre>
+
+	<h2>Visual Studio Code</h2>
+	<p>Для установки Visual Studio Code выполнены команды:</p>
+	<pre><code>sudo apt-get install wget gpg &amp;&amp;
+wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor &gt; microsoft.gpg &amp;&amp;
+sudo install -D -o root -g root -m 644 microsoft.gpg /usr/share/keyrings/microsoft.gpg &amp;&amp;
+rm -f microsoft.gpg</code></pre>
+	<p>Создан файл /etc/apt/sources.list.d/vscode.sources следующего содержания:</p>
+	<pre><code>Types: deb
+URIs: https://packages.microsoft.com/repos/code
+Suites: stable
+Components: main
+Architectures: amd64,arm64,armhf
+Signed-By: /usr/share/keyrings/microsoft.gpg</code></pre>
+	<p>Выполнены команды:</p>
+	<pre><code>sudo apt install apt-transport-https
+sudo apt update
+sudo apt install code</code></pre>
+
+	<h2>Git</h2>
+	<p>Установлен git:</p>
+	<pre><code>sudo apt install git</code></pre>
+	<p>Настроены реквизиты:</p>
+	<pre><code>git config --global user.name "k2maxim"
+git config --global user.email "maxim.tolstikov@kartoteka.ru"</code></pre>
+	<p>Затем создана папка ~/Repository/Rust/kartoteka-bot...</p>
+	<pre><code>cd ~/Repository/Rust
+cargo new kartoteka-bot --binary</code></pre>
+	<p>
+		...и подключена к репозиторию
+		<a href="https://github.com/K2Maxim/kartoteka-bot">
+			https://github.com/K2Maxim/kartoteka-bot
+		</a>
+	</p>
+	<pre><code>git remote set-url origin git@github.com:K2Maxim/kartoteka-bot.git</code></pre>
+
+	<h2>Axum</h2>
+	<p>
+		Информация по веб-фреймворку Axum находится по адресу
+		<a href="https://docs.rs/axum/latest/axum/">https://docs.rs/axum/latest/axum/</a>
+	</p>
+	<p>В Cargo.toml прописаны следующие зависимости:</p>
+	<pre><code>[dependencies]
+axum = "&lt;последняя версия&gt;"</code></pre>
+	<p>Выполнена компиляция Axum и добавлен вызов axum::serve в main.rs</p>
+	<p>После компиляции обновлен файл Cargo.toml и выполнена повторная компиляция:</p>
+	<pre><code>[dependencies]
+axum = "&lt;последняя версия&gt;"
+tokio = { version = "&lt;версия из Cargo.lock&gt;", features = ["rt-multi-thread"] }</code></pre>
+	<p>Создана тестовая конечная точка в main.rs...</p>
+	<pre><code>Router::new().route("/", get(|| async { "Hello, World!" }));</code></pre>
+	<p>...и выполнено тестирование в браузере.</p>
+
+	<h2>Развертывание</h2>
+	<p>Для публичного развертывания проекта выбран сервис <a href="https://railway.com/">Railway</a></p>
+	<p>Предварительно создан файл readme.md следующего содержания...</p>
+	<pre><code># Бот Картотеки
+
+Конструктор сценариев для бота Картотеки</code></pre>
+	<p>...и проект kartoteka-bot опубликован на GitHub под аккаунтом K2Maxim.</p>
+	<p>Затем выполнена регистрация на сервисе, для регистрации использован вышеупомянутый аккаунт.</p>
+	<p>После регистрации выполнен переход в <a href="https://railway.com/dashboard">дашборд</a> и выполнено добавление GitHub проекта в Railway.</p>
+	<p>При выдаче Railway доступов к GitHub ограничил доступ только проектом kartoteka-bot.</p>
+	<p>После добавления проекта произведена модификация настроек: в разделе Networking, подразделе Public Networking выполнена генерация публичного домена. После этого наш сайт доступен по адресу https://kartoteka-bot-production.up.railway.app/</p>
+	
+	<h2>Веб-интерфейс</h2>
+	<p>Создана папка assets для раздачи статики.</p>
+	<p>Создана разметка главной страницы index.html. На главную страницу добавил форму, в которой будут заполняться шаги конструктора чат-ботов.</p>
+	<p>Для красивого оформления конструктора созданы файлы каскадных таблиц стилей main.css (отвечает за оформление главной страницы в целом) и form.css (отвечает за оформление формы для заполнения шагов).</p>
+	<p>Для раздачи статики в зависимости проекта (Cargo.toml) добавлена строка...</p>
+	<pre><code>tower-http = { version = "&lt;версия из Cargo.lock&gt;", features = ["fs"] }</code></pre>
+	<p>...а в main.rs добавлена строка:</p>
+	<pre><code>axum::Router::new().fallback_service(tower_http::services::ServeDir::new("assets"));</code></pre>
+	<p>Проект перекомпилирован, и видим веб-интерфейс.</p>
+	
+	<h2>База данных</h2>
+	
+	<h3>Базовая установка</h3>
+	<p>Установка базы данных PostgreSQL на виртуальной машине:</p>
+	<pre><code>sudo apt update
+sudo apt install postgresql</code></pre>
+
+	<h3>Настройка TCP/IP</h3>
+	<p>Выполнена настройка прослушивания по протоколу TCP/IP вместо сокетов.</p>
+	<pre><code>sudo nano /etc/postgresql/&lt;версия&gt;/main/postgresql.conf</code></pre>
+	<p>...и в открывшемся файле раскомментирована строка:</p>
+	<pre><code>listen_addresses = 'localhost'</code></pre>
+	<p>...и закомментирована строка:</p>
+	<pre><code>unix_socket_directories = '/var/run/postgresql'</code></pre>
+
+	<h3>Установка SQLX</h3>
+	<p>В Cargo.toml добавлена ссылка на библиотеку для работы с базами данных...</p>
+	<pre><code>sqlx = { version = "&lt;последняя версия&gt;", features = ["postgres"] }</code></pre>
+	<p>...и установлен консольный инструмент для этой библиотеки:</p>
+	<pre><code>cargo install sqlx-cli --no-default-features --features postgres</code></pre>
+
+	<h3>Создание миграции</h3>
+	<p>Перешли в папку проекта:</p>
+	<pre><code>cd ~/Repository/Rust/kartoteka-bot</code></pre>
+	<p>В папке проекта создана миграция для таблицы ботов...</p>
+	<pre><code>cargo sqlx migrate add create_bots_table</code></pre>
+	<p>...и заполнено её содержимое:</p>
+	<pre><code>CREATE TABLE IF NOT EXISTS bots (
+    id SERIAL PRIMARY KEY,
+    name CHAR(50) UNIQUE NOT NULL,
+    token VARCHAR(100) NOT NULL
+);</code></pre>
+
+	<h3>Настройка строки подключения</h3>
+
+	<h4>Файл переменных окружения</h4>
+	<p>Создан файл переменных окружения .env:</p>
+	<pre><code>touch ~/Repository/Rust/kartoteka-bot/.env</code></pre>
+	<p>
+	Файл прописан в .gitignore, чтобы конфиденциальные данные об окружении
+	не утекли в систему контроля версий. Содержимое .gitignore:
+	</p>
+
+	<pre><code>/target
+.env</code></pre>
+
+	<h4>Пароль</h4>
+	<p>Задан пароль для доступа к базе данных:</p>
+	<pre><code>sudo -u postgres psql</code></pre>
+	<pre><code>ALTER USER postgres WITH PASSWORD '&lt;пароль&gt;';
+\q</code></pre>
+
+	<h4>База данных</h4>
+	<p>Создана база данных:</p>
+	<pre><code>sudo -u postgres psql</code></pre>
+	<pre><code>CREATE DATABASE &lt;имя БД&gt;;
+\q</code></pre>
+
+	<h4>Итоговая строка</h4>
+	<p>В .env файле прописана итоговая строка подключения к базе данных:</p>
+	<pre><code>DATABASE_URL=postgres://postgres:&lt;пароль&gt;@localhost:5432/&lt;имя БД&gt;</code></pre>
+
+	<h3>Запуск и проверка миграции</h3>
+	<p>sqlx теперь знает, как ему обращаться к базе данных, запустил миграцию:</p>
+	<pre><code>cargo sqlx migrate run</code></pre>
+	<p>Выполнена проверка результата миграции:</p>
+	<pre><code>sudo -u postgres psql
+postgres=# \c &lt;имя БД&gt;
+You are now connected to database "&lt;имя БД&gt;" as user "postgres".
+&lt;имя БД&gt;=# \dt
+              List of relations
+ Schema |       Name       | Type  |  Owner
+--------+------------------+-------+----------
+ public | _sqlx_migrations | table | postgres
+ public | bots             | table | postgres</code></pre>
+
+<pre><code>\d bots
+                                    Table "public.bots"
+ Column |          Type          | Collation | Nullable |             Default
+--------+------------------------+-----------+----------+----------------------------------
+ id     | integer                |           | not null | nextval('bots_id_seq'::regclass)
+ name   | character(50)          |           | not null |
+ token  | character varying(100) |           | not null |
+Indexes:
+    "bots_pkey" PRIMARY KEY, btree (id)
+    "bots_name_key" UNIQUE CONSTRAINT, btree (name)</code></pre>
+
+	<h2>Настройка работы с базой данных в программе</h2>
+	<ul>
+		<li>создан файл database.rs, описан пул подключений к базе данных;</li>
+		<li>создан файл model.rs, описаны модели данных в базе данных;</li>
+		<li>создан файл handlers.rs, определены обработчики сетевых запросов к базе данных.</li>
+	</ul>
+	<p>В основном файле main.rs добавлены объявления данных модулей, а также который пытается получть строку подключения из переменных окружения и создать пул подключений к базе данных.</p>
+	
+	<h2>Повторное развертывание</h2>
+	<p>Произведено повторное развертывание проекта на Railway, в ходе развертывания возниклы проблемы, усеченное содержимое лога:</p>
+	<pre><code>    ...
+    error: rustc 1.85.1 is not supported by the following packages:
+    ...
+    home@0.5.12 requires rustc 1.88
+    icu_collections@2.2.0 requires rustc 1.86
+    icu_normalizer@2.2.0 requires rustc 1.86
+    ...
+  Either upgrade rustc or select compatible dependency versions with
+  `cargo update &lt;name&gt;@&lt;current-ver&gt; --precise &lt;compatible-ver&gt;`
+  where `&lt;compatible-ver&gt;` is the latest version supporting rustc 1.85.1</code></pre>
+	<p>По-видимому, Railway по умолчанию использует достаточно старую версию rustc.</p>
+	<p>В ходе дальнейшего анализа найдены следующие способы решения проблемы:</p>
+	<ol>
+		<li>
+			Создание специального файла rust-toolchain.toml
+			для описания используемой цепочки инструментов:
+			<pre><code>[toolchain]
+channel = "&lt;используемая версия Rust&gt;"
+components = [&lt;используемые компоненты через запятую&gt;]
+targets = ["&lt;архитектура системы&gt;"]</code></pre>
+			Информацию для описания можно получить через rustup show и rustup component list.
+		</li>
+		<li>
+			Понижение версии зависимостей:
+			<pre><code>cargo update &lt;зависимость 1&gt;@&lt;текущая версия&gt; --precise &lt;пониженная версия&gt;
+cargo update &lt;зависимость 2&gt;@&lt;текущая версия&gt; --precise &lt;пониженная версия&gt;
+...
+cargo update &lt;зависимость N&gt;@&lt;текущая версия&gt; --precise &lt;пониженная версия&gt;</code></pre>
+			Подходящие версии можно подобрать, непосредственно посетив
+			сайт <a href="https://crates.io/">crates.io</a> и изучив там
+			информацию по проблемным зависимостям.
+		</li>
+	</ol>
+	<p>
+		Понижение версии зависимостей в данном случае не вариант: как мы уже отмечали
+		в начале отчета, Rust и так достаточно увесисто по объему зависимостей тащит,
+		чтобы еще разные версии зависимостей качать. На диске между тем осталось места
+		совсем чуть-чуть...
+	</p>
+	<p>
+		Поэтому выбран первый вариант: описание в rust-toolchain.toml используемой
+		цепочки инструментов. К моему удивлению, после запуска сборки (cargo build)
+		Rust сделал финт хвостом и начал скачивать и компилировать еще одну цепочку
+		инструментов, идентичную той, что я уже использую. Зачем - мне не понять,
+		да и не вышло ничего, потому что при сборке дублирующей цепочки инструментов
+		закончилось место на диске...
+	</p>
+	<p>
+		Намучавшись с попытками освободить место в системе, заточенной специально под задачу
+		и не имеющей ничего лишнего помимо инструментов разработки, наконец удалось успешно
+		запустить cargo build и убедиться, что после добавления rust-toolchain.toml проект
+		работает на локальной машине. После публикации на Railway проект также успешно собрался.
+	</p>
+
+	<h2>Доработка взаимодействия с базой данных</h2>
+	<p>Пока что полноценное взаимодействие с базой данных не налажено. Наброски, описанные в главе База данных, не работают, потому что:</p>
+	<ul>
+		<li>не работает извлечение строки подключения из переменных окружения: надо как-то добавить в окружение информацию из файла переменных окружения;</li>
+		<li>не созданы запросы, которые будут извлекать данные из базы и обновлять их.</li>
+	</ul>
+	<p>Решение вопроса разобъем на этапы.</p>
+
+	<h3>Этап 1: выделение логики, отрабатывающей при успешном получении строки подключения, в отдельную функцию</h3>
+	<p>Так как хочется решать вопрос работы с базой данных независимо от вопроса работы с переменными окружения, поступаю следующим образом.</p>
+	<ol>
+		<li>в проекте создается функция get_application_with_database_support, содержащая обращение к переменной окружения;</li>
+		<li>в случае успеха эта функция выполняет все действия по инициализации базы данных и возвращает приложение с поддержкой работы с базой данных;</li>
+		<li>в случае неудачи в основной программе создается урезанная версия приложения без поддержки базы данных, чтобы пользователь мог видеть хотя бы статическое содержимое.</li>
+	</ol>
+
+	<h3>Этап 2: логика для работы с базой данных</h3>
+	<ol>
+		<li>в models.rs добавлены модели данных;</li>
+		<li>в handlers.rs добавлены обработчики для создания нового бота и получения списка ботов;</li>
+		<li>в main.rs добавлены пути для обработчиков.</li>
+	</ol>
+
+	<h3>Этап 3: подготовка к переезду на Railway</h3>
+	<p>На Railway нужные таблицы сами магическим образом не создадутся, чтобы они были, нужно запустить миграцию.</p>
+	<p>Добавлена в main.rs строка для запуска миграции:</p>
+	<pre><code>sqlx::migrate!().run(&pool).await.ok()?;</code></pre>
+
+	<h3>Этап 4: добавление в окружение информации из файла переменных окружения</h3>
+	<p>В Cargo.toml добавлена зависимость от библиотеки работы с файлами переменных окружения.</p>
+	<p>В main.rs добавлена строка для инициализации переменных окружения:</p>
+	<pre><code>dotenvy::dotenv().ok()?;</code></pre>
+
+	<h3>Этап 5: попытка решения всплывших проблем</h3>
+	<p>Как оказалось, в ветке с поддержкой базы данных была ошибка времени выполнения, просто без инициализации переменных окружения она не выполнялась и ошибки не возникало.</p>
+	<p>Чтобы разрешить эту проблему, нужна еще одна зависимость для sqlx - runtime-tokio, но добавить её не получается, так как даже после всех чисток и архиваций на диске больше нет места.</p>
+	<p>Придется отложить решение проблемы на следующую неделю, когда будет время создать новую виртуальную машину с увеличенным объемом жесткого диска.</p>
+	<p>А пока удаляем снова папку target со скомпилированными зависимостями, чтобы было место хотя бы для элементарных операций вроде сохранения этого файла и подготовки проекта к публикации.</p>
+</body>
+</html>
