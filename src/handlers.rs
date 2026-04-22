@@ -10,6 +10,15 @@ pub async fn health_ok() -> &'static str {
 pub async fn health_no_db() -> String {
     let mut lines: Vec<String> = Vec::new();
     lines.push("Нет БД".to_string());
+    match dotenvy::dotenv() {
+        Ok(value) => {
+            lines.push(format!{"- переменные окружения загружены из файла: {}", value.to_string_lossy()});
+        }
+        Err(e) => {
+            lines.push(format!{"- ошибка при загрузке переменных окружения из файла: {e}"});
+            return lines.join("\n").to_string();
+        }
+    }
     let database_url: String =
         match std::env::var("DATABASE_URL") {
             Ok(value) => {
@@ -19,7 +28,7 @@ pub async fn health_no_db() -> String {
             }
             Err(e) => {
                 lines.push(format!{"- не удалось получить значение переменной окружения: {e}"});
-                return lines.join("\n").to_string()
+                return lines.join("\n").to_string();
             }
         };
     let pool: sqlx::Pool<sqlx::Postgres> =
@@ -30,14 +39,14 @@ pub async fn health_no_db() -> String {
             }
             Err(e) => {
                 lines.push(format!{"- не удалось создать пул подключений: {e}"});
-                return lines.join("\n").to_string()
+                return lines.join("\n").to_string();
             }
         };
     match sqlx::migrate!().run(&pool).await {
         Ok(()) => lines.push("- миграция выполнена".to_string()),
         Err(e) => {
             lines.push(format!{"- не удалось провести миграцию: {e}"});
-            return lines.join("\n").to_string()
+            return lines.join("\n").to_string();
         }
     }
     lines.join("\n").to_string()
