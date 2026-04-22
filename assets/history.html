@@ -31,10 +31,8 @@
 	<p>Установлена цепочка инструментов Rust:</p>
 	<pre><code>rustup toolchain install stable</code></pre>
 	<p>Выполнена проверка установки инструментов:</p>
-	<pre><code>cargo --version</code></pre>
-	<pre><code>cargo 1.92.0</code></pre>
-	<pre><code>rustc --version</code></pre>
-	<pre><code>rustc 1.92.0</code></pre>
+	<pre><code>cargo --version
+rustc --version</code></pre>
 
 	<h2>Visual Studio Code</h2>
 	<p>Для установки Visual Studio Code выполнены команды:</p>
@@ -86,7 +84,7 @@ axum = "&lt;последняя версия&gt;"
 tokio = { version = "&lt;версия из Cargo.lock&gt;", features = ["rt-multi-thread"] }</code></pre>
 	<p>Создана тестовая конечная точка в main.rs...</p>
 	<pre><code>Router::new().route("/", get(|| async { "Hello, World!" }));</code></pre>
-	<p>...и выполнено тестирование в браузере.</p>
+	<p>...и выполнено тестирование в браузере по адресу <a href="http://localhost:3000/">http://localhost:3000/</a></p>
 
 	<h2>Развертывание</h2>
 	<p>Для публичного развертывания проекта выбран сервис <a href="https://railway.com/">Railway</a></p>
@@ -119,6 +117,7 @@ sudo apt install postgresql</code></pre>
 
 	<h3>Настройка TCP/IP</h3>
 	<p>Выполнена настройка прослушивания по протоколу TCP/IP вместо сокетов.</p>
+	<pre><code>find /etc/postgresql/ -name postgresql.conf</code></pre>
 	<pre><code>sudo nano /etc/postgresql/&lt;версия&gt;/main/postgresql.conf</code></pre>
 	<p>...и в открывшемся файле раскомментирована строка:</p>
 	<pre><code>listen_addresses = 'localhost'</code></pre>
@@ -139,7 +138,7 @@ sudo apt install postgresql</code></pre>
 	<p>...и заполнено её содержимое:</p>
 	<pre><code>CREATE TABLE IF NOT EXISTS bots (
     id SERIAL PRIMARY KEY,
-    name CHAR(50) UNIQUE NOT NULL,
+    name VARCHAR(50) UNIQUE NOT NULL,
     token VARCHAR(100) NOT NULL
 );</code></pre>
 
@@ -174,6 +173,7 @@ sudo apt install postgresql</code></pre>
 
 	<h3>Запуск и проверка миграции</h3>
 	<p>sqlx теперь знает, как ему обращаться к базе данных, запустил миграцию:</p>
+	<pre><code>cd ~/Repository/Rust/kartoteka-bot</code></pre>
 	<pre><code>cargo sqlx migrate run</code></pre>
 	<p>Выполнена проверка результата миграции:</p>
 	<pre><code>sudo -u postgres psql
@@ -191,7 +191,7 @@ You are now connected to database "&lt;имя БД&gt;" as user "postgres".
  Column |          Type          | Collation | Nullable |             Default
 --------+------------------------+-----------+----------+----------------------------------
  id     | integer                |           | not null | nextval('bots_id_seq'::regclass)
- name   | character(50)          |           | not null |
+ name   | character varying(50)  |           | not null |
  token  | character varying(100) |           | not null |
 Indexes:
     "bots_pkey" PRIMARY KEY, btree (id)
@@ -298,6 +298,123 @@ cargo update &lt;зависимость N&gt;@&lt;текущая версия&gt
 	<p>Как оказалось, в ветке с поддержкой базы данных была ошибка времени выполнения, просто без инициализации переменных окружения она не выполнялась и ошибки не возникало.</p>
 	<p>Чтобы разрешить эту проблему, нужна еще одна зависимость для sqlx - runtime-tokio, но добавить её не получается, так как даже после всех чисток и архиваций на диске больше нет места.</p>
 	<p>Придется отложить решение проблемы на следующую неделю, когда будет время создать новую виртуальную машину с увеличенным объемом жесткого диска.</p>
-	<p>А пока удаляем снова папку target со скомпилированными зависимостями, чтобы было место хотя бы для элементарных операций вроде сохранения этого файла и подготовки проекта к публикации.</p>
+	<p>А пока удаляем снова папку target со скомпилированными зависимостями, чтобы было место хотя бы для элементарных операций вроде сохранения истории работы над проектом.</p>
+	
+	<h2>Создание новой виртуальной машины с увеличенным объемом жесткого диска.</h2>
+
+	<h3>Предварительный этап</h3>
+	<ul>
+		<li>Имя виртуальной машины - Ubuntu 24.</li>
+		<li>Указан образ ОС - ubuntu-24.04-desktop-amd64.iso</li>
+		<li>Настроить автоматическую установку ОС - отключено.</li>
+		<li>Укажите виртуальное оборудование - оперативная память 4 Гб, 2 процессора<./li>
+		<li>Укажите виртуальный жесткий диск - создан диск 50 Гб, формат VDI.</li>
+		<li>Порядок загрузки - оптический диск, жесткий диск (гибкий диск убран).</li>
+		<li>Видеопамять - 128 Мб VMSVGA</li>
+		<li>Установка:
+			<ul>
+				<li>дополнительное ПО - отказ;</li>
+				<li>тип установки - Erase disk and install Ubuntu;</li>
+				<li>для контроля процесса есть значок в правом нижнем углу, чтобы заменить вводные картинки выводом из консоли установщика;</li>
+				<li>Ubuntu производит свою установку за полтора-два часа.</li>
+			</ul>
+		</li>
+	</ul>
+	
+	<h3>Дополнения гостевой операционной системы</h3>
+	<p>Чтобы повторно не вводить вручную все команды, введенные во время первой установки, добавлены упрощающие работу дополнения гостевой операционной системы.</p>
+	<p>Сначала ставим необходимый для сборки дополнений пакет:</p>
+	<pre><code>sudo apt update
+sudo apt install build-essential</code></pre>
+	<p>Далее на вкладке "Устройства" в верхней части экрана виртуальной машины выбран пункт "Подключить образ дополнений гостевой ОС"</p>
+	<p>Имя папки, куда смонтировался образ, заранее неизвестно, ищем её:</p>
+	<pre><code>find /media -name VBoxLinuxAdditions.run</code></pre>
+	<p>Далее выполнен запуск:</p>
+	<pre><code>sudo sh &lt;результат команды find&gt;</code></pre>
+	<p>На вкладке "Устройства" в верхней части экрана виртуальной машины выбран пункт "Общий буфер обмена" > "Двунаправленный"</p>
+	<p>После установки система перезагружена:</p>
+	<pre><code>sudo reboot</code></pre>
+
+	<h3>Упрощаем вид рабочего стола</h3>
+	<p>Поставлен dconf-editor:</p>
+	<pre><code>sudo apt install dconf-editor</code></pre>
+
+	<p>Открываем dconf-editor и в редакторе меняем ветки:</p>
+	<ul>
+		<li>org/gnome/desktop/background/picture-uri - новое значение: ''</li>
+		<li>org/gnome/desktop/background/picture-uri-dark - новое значение: ''</li>
+	</ul>
+
+	<h3>Автодополнение кода Rust</h3>
+	<p>Расширение автодополнения кода Rust взято по ссылке: <a href="https://open-vsx.org/extension/rust-lang/rust-analyzer">OpenVSX rust-analyzer</a></p>
+	<p>Открыт редактор Visual Studio Code, в разделе "Extensions" нажимаем на три точки и выбираем "Install from VSIX...". Ставим расширение.</p>
+	
+	<h2>Получение проекта и повторная сборка</h2>
+	<p>Так как создана новая виртуальная машина с нуля, то на ней нет нашего проекта.</p>
+	<p>Но проект есть на GitHub. Клонируем его:</p>
+	<pre><code>cd ~/Repository/Rust
+git clone https://github.com/K2Maxim/kartoteka-bot.git</code></pre>
+	<p>Поставлен PostrgreSQL в соответствии с историей проекта, сделана миграция.</p>
+	<p>Запускаю сборку снова - места для фичи runtime-tokio на этот раз хватило, все успешно собралось.</p>
+	
+	<h2>Проверка здоровья и конечных точек</h2>
+	<p>Проверка здоровья. В одном окне cargo run из папки ~/Repository/Rust/kartoteka-bot, в другом окне:</p>
+	<pre><code>curl http://localhost:3000/health
+OK</code></pre>
+	<p>Проверка конечных точек. Запрос к точке "/api/bot":</p>
+	<pre><code>curl --request POST \
+  --url http://localhost:3000/api/bot \
+  --header "Content-Type: application/json" \
+  --data @- &lt;&lt;EOF
+{
+    "name": "test",
+    "token": ""
+}
+EOF</code></pre>
+	<p>Ответ выглядит удовлетоврительно...</p>
+	<pre><code>{"id":1,"name":"test","token":""}</code></pre>
+	<p>...но записались ли данные на самом деле в базу? Давай проверим:</p>
+	<pre><code>sudo -u postgres psql
+postgres=# \c kartoteka_bot
+You are now connected to database "kartoteka_bot" as user "postgres".
+kartoteka_bot=# SELECT * FROM bots;
+ id | name | token 
+----+------+-------
+  1 | test | 
+(1 row)</code></pre>
+	<p>Отлично, данные записались. Пробую получить эти же данные через API:</p>
+	<pre><code>curl --request GET \
+  --url http://localhost:3000/api/bots \
+  --header "Content-Type: application/json"</code></pre>
+	<p>Хм, cURL говорит, что получил от сервера пустой ответ:</p>
+	<pre><code>curl: (52) Empty reply from server</code></pre>
+	<p>Но в базе данных в таблице ботов у нас имеется запись, поэтому ответ не должен быть пустым.</p>
+	
+	<h2>Исправление проблемы с конечной точкой /api/bots</h2>
+	<p>Изучаю запрос, используемый в данной конечной точке, и что я вижу: SELECT ... FROM users</p>
+	<p>Но таблицы users в базе данных нет - приложение сгенерировало ошибку при попытке выборки из несуществующей таблицы.</p>
+	<p>Можно было бы догадаться, что приложение сгенерировало ошибку, если бы добавил в команду curl флаг --verbose, а сама ошибка была видна в другом окне консоли.</p>
+	<p>Однако ввиду того, что сложно догадаться ставить флаг --verbose и переключиться на другое окно, необходимо менять код.</p>
+	<p>Меняю код: теперь вместо выброса исключения производится обработка ошибки и в зависимости от того, была ли ошибка или нет, возвращается разный JSON.</p>
+	<p>В обе версии JSON добавлено поле success: true если ошибки не было, false если была ошибка.</p>
+	<p>Повторяю тестирование конечной точки /api/bots, и вот результат:</p>
+	<pre><code>{"success":true,"bots":[{"id":1,"name":"test","token":""}]}</code></pre>
+
+    <h2>Третье развертывание на Railway</h2>
+    <p>Отлично, база данных работает и конечные точки тоже. Время для очередного развертывания и тестирования на проде.</p>
+    <p>Но прежде чем разверывать на проде, проработаем наиболее вероятную причину проблем на проде - неверно настроенное окружение.</p>
+    <p>Создаю обработчик для отладки переменных окружения</p>
+    <pre><code>pub async fn debug_environment_variables() -> axum::response::Json&lt;Vec&lt;String&gt;&gt;</code></pre>
+    <p>
+        Добавляю конечную точку для отладки переменных окружения в main.rs ТОЛЬКО в ветку,
+        которая обрабатывает проблему с поддержкой базы данных (пожалуй, незачем светить
+        информацию о переменных окружения, если с базой данных все хорошо).
+    </p>
+    <pre><code>    get_application_with_database_support().await.unwrap_or_else(||
+    axum::Router::new()
+    .route("/health", axum::routing::get(handlers::health_no_db))
+    .route("/debug_environment_variables", axum::routing::get(handlers::debug_environment_variables))
+    ...</code></pre>
+    <p>Проверяю, что проект компилируется, и публикую изменения в репозиторий.</p>
 </body>
 </html>
