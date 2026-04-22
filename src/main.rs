@@ -26,7 +26,7 @@ async fn main() {
         get_application_with_database_support().await.unwrap_or_else(||
         axum::Router::new()
         .route("/health", axum::routing::get(handlers::health_no_db))
-        .route("/debug_environment_variables", axum::routing::get(handlers::debug_environment_variables))
+        .route("/debug/environment_variables", axum::routing::get(handlers::debug_environment_variables))
         .route("/init", axum::routing::get(handlers::minimal_init))
         .fallback_service(tower_http::services::ServeDir::new("assets")));
 
