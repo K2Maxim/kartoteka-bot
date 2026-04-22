@@ -5,7 +5,7 @@ mod handlers;
 use crate::models::AppState;
 
 async fn get_application_with_database_support() -> Option<axum::Router> {
-    dotenvy::dotenv().ok()?;
+    dotenvy::dotenv().ok();
     let database_url: String = std::env::var("DATABASE_URL").ok()?;
     let pool: sqlx::Pool<sqlx::Postgres> = database::create_pool(&database_url).await.ok()?;
     sqlx::migrate!().run(&pool).await.ok()?;

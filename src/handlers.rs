@@ -16,7 +16,6 @@ pub async fn health_no_db() -> String {
         }
         Err(e) => {
             lines.push(format!{"- ошибка при загрузке переменных окружения из файла: {e}"});
-            return lines.join("\n").to_string();
         }
     }
     let database_url: String =
