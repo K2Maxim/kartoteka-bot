@@ -402,9 +402,11 @@ kartoteka_bot=# SELECT * FROM bots;
 
     <h2>Третье развертывание на Railway</h2>
     <p>Отлично, база данных работает и конечные точки тоже. Время для очередного развертывания и тестирования на проде.</p>
-    <p>Но прежде чем разверывать на проде, проработаем наиболее вероятную причину проблем на проде - неверно настроенное окружение.</p>
+    
+	<h3>Подготовка к развертыванию</h3>
+	<p>Но прежде чем разверывать на проде, проработаем наиболее вероятную причину проблем на проде - неверно настроенное окружение.</p>
     <p>Создаю обработчик для отладки переменных окружения</p>
-    <pre><code>pub async fn debug_environment_variables() -> axum::response::Json&lt;Vec&lt;String&gt;&gt;</code></pre>
+    <pre><code>pub async fn debug_environment_variables() -> axum::response::Json&lt;std::collections::HashMap&lt;String, String&gt;&gt;</code></pre>
     <p>
         Добавляю конечную точку для отладки переменных окружения в main.rs ТОЛЬКО в ветку,
         которая обрабатывает проблему с поддержкой базы данных (пожалуй, незачем светить
@@ -413,8 +415,25 @@ kartoteka_bot=# SELECT * FROM bots;
     <pre><code>    get_application_with_database_support().await.unwrap_or_else(||
     axum::Router::new()
     .route("/health", axum::routing::get(handlers::health_no_db))
-    .route("/debug_environment_variables", axum::routing::get(handlers::debug_environment_variables))
+    .route("/debug/environment_variables", axum::routing::get(handlers::debug_environment_variables))
     ...</code></pre>
     <p>Проверяю, что проект компилируется, и публикую изменения в репозиторий.</p>
+
+	<h3>Тестирование</h3>
+	<p>По результатам тестирования видим, что переменная DATABASE_URL на производственном сервере не определена:</p>
+	<pre><code>$ curl https://kartoteka-bot-production.up.railway.app/health
+Нет БД</code></pre>
+	<pre><code>$ curl https://kartoteka-bot-production.up.railway.app/debug_environment_variables
+{&lt;длинный список, в котором, однако, нет переменной окружения DATABASE_URL &gt;}</code></pre>
+	<p>В дашборде открываю базу PostgreSQL, вкладка Database, кнопка Connect, следую инструкциям на вкладке "Private Network".</p>
+	<p>Повторяю тестирование, вижу, что переменная окружения определена, однако /health по-прежнему показывает "Нет БД", нужна доработка конечной точки /health (больше информации о проблеме).</p>
+
+	<h3>Доработка конечной точки /health</h3>
+	<ul>
+		<li>добавлена проверка переменной окружения</li>
+		<li>добавлен вывод значения переменной окружения</li>
+		<li>добавлена проверка создания пула подключений</li>
+		<li>добавлена проверка успешноссти проведения миграции</li>
+	</ul>
 </body>
 </html>
